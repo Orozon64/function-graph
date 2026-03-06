@@ -30,16 +30,18 @@ function App() {
     );
   }
 
-  useEffect(() => {
-    if (!rootRef.current) return;
-    rootRef.current.innerHTML = ""; 
+useEffect(() => {
+  if (!rootRef.current) return;
+  
+  const containerWidth = Math.max(rootRef.current.offsetWidth, 300);
+  rootRef.current.innerHTML = ""; 
 
-    try {
-      functionPlot({
-        target: rootRef.current, 
-        width: 600,
-        height: 400,
-        grid: true,
+  try {
+    functionPlot({
+      target: rootRef.current, 
+      width: containerWidth,
+      height: 400,
+      grid: true,
         xAxis: { domain: [-10, 10] },
         yAxis: { domain: [-10, 10] },
         tip: {
@@ -49,54 +51,76 @@ function App() {
             return `x: ${x.toFixed(2)}, y: ${y.toFixed(2)}`;
           }
         },
-        data: [
-          {
-            fn: `${aCoefficient} * x + ${bCoefficient}`, 
-            color: 'red',
-          }
-        ]
-      });
-    } catch (e) {
-      console.error("Błąd rysowania:", e);
-    }
-  }, [aCoefficient, bCoefficient]); 
+      data: [{
+        fn: `${aCoefficient} * x + ${bCoefficient}`, 
+        color: 'red',
+      }]
+    });
+  } catch (e) {
+    console.error(e);
+  }
+}, [aCoefficient, bCoefficient]);
+
+
 
   return (
     <div className="container mt-5">
-      <h1 className="mb-4">Analizator Funkcji Liniowej</h1>
-      
-      <div className="row">
-        <div className="col-md-4">
-          <div className="card p-3">
-            <h5>Parametry</h5>
-            <label className="form-label">Współczynnik a: {aCoefficient}</label>
-            <input 
-              type="range" className="form-range" 
-              min="-10" max="10" step="0.5"
-              value={aCoefficient} 
-              onChange={(e) => setACoefficient(parseFloat(e.target.value))} 
-            />
-            
-            <label className="form-label mt-2">Współczynnik b: {bCoefficient}</label>
-            <input 
-              type="range" className="form-range" 
-              min="-10" max="10" step="0.5"
-              value={bCoefficient} 
-              onChange={(e) => setBCoefficient(parseFloat(e.target.value))} 
-            />
-            
-            <PropertiesInfoBox />
-          </div>
-        </div>
+  <h1 className="mb-4 text-center">Analizator Funkcji Liniowej</h1>
+  
+  <div className="d-flex flex-wrap justify-content-center gap-4">
 
-        <div className="col-md-8 text-center">
-          <div 
-            ref={rootRef} 
-            style={{ border: '1px solid #ccc', borderRadius: '8px', background: 'white' }}
-          ></div>
+    <div style={{ flex: "1 1 350px", maxWidth: "450px" }}>
+      <div className="card p-4 shadow-sm h-100">
+        <h5 className="card-title border-bottom pb-2">Parametry</h5>
+        
+        <div className="mb-3">
+          <label className="form-label d-flex justify-content-between">
+            Współczynnik a: <b>{aCoefficient.toFixed(1)}</b>
+          </label>
+          <input 
+            type="range" className="form-range" 
+            min="-10" max="10" step="0.5"
+            value={aCoefficient} 
+            onChange={(e) => setACoefficient(parseFloat(e.target.value))} 
+          />
         </div>
+        
+        <div className="mb-3">
+          <label className="form-label d-flex justify-content-between">
+            Współczynnik b: <b>{bCoefficient.toFixed(1)}</b>
+          </label>
+          <input 
+            type="range" className="form-range" 
+            min="-10" max="10" step="0.5"
+            value={bCoefficient} 
+            onChange={(e) => setBCoefficient(parseFloat(e.target.value))} 
+          />
+        </div>
+        
+        <PropertiesInfoBox />
       </div>
     </div>
+
+
+    <div style={{ 
+      flex: "1 1 600px", 
+      maxWidth: "800px",
+      background: "white", 
+      borderRadius: "12px", 
+      border: "1px solid #dee2e6",
+      overflow: "hidden", 
+      minHeight: "400px" 
+    }}>
+      <div 
+        ref={rootRef} 
+        className="w-100 d-flex justify-content-center align-items-center"
+        style={{ minHeight: "400px" }}
+      >
+      </div>
+    </div>
+
+  </div>
+</div>
   )
 }
 

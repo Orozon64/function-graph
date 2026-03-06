@@ -40,3 +40,8 @@
 .read-the-docs {
   color: #888;
 }
+
+.sidebar-card {
+  width: 350px;
+  min-height: 400px;
+}
