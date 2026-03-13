@@ -9,11 +9,12 @@ function App() {
   const [aCoefficient, setACoefficient] = useState(1);
   const [bCoefficient, setBCoefficient] = useState(0);
   const [numOfProblems, setNumOfProblems] = useState(1);
-  const [problems, setProblems] = useState([
-    "Określ monotoniczność funkcji f(x)", 
-    "Punkt A znajduje się na wykresie funkcji f(x) = Amx -Bm. Oblicz m i podaj wzór funkcji f"
-  ])
-
+  const problems = [
+    "Określ monotoniczność funkcji f(x)=", 
+    "Punkt A() znajduje się na wykresie funkcji f(x) = Amx Bm. Oblicz m i podaj wzór funkcji f",
+    "Podaj miejsca zerowe (jeżeli istnieją) funkcji f(x)="
+  ] //DO NOT REARRANGE - currently the generation is dependent on index of item in array!
+  const [problemListItems, setProblemListItems] = useState([]) 
   const rootRef = useRef(null);
 
   function PropertiesInfoBox() {
@@ -75,39 +76,47 @@ function App() {
       console.error("Błąd rysowania:", e);
     }
   }, [aCoefficient, bCoefficient]); 
+
   function generateProblems(e) {
     e.preventDefault();
-    const modifiedProblems = []
-    for (let index = 0; index < numOfProblems; index++) {
-      let problemContent = problems[index]; 
-      //modify the content of the problem to reflect the user-defined function
-      switch (index) {
-        case 0:
-          if (bCoefficient < 0) {
-            
-            problemContent += aCoefficient + " x - " + bCoefficient;
+    setProblemListItems(problems.filter(problem=>problems.indexOf(problem) < numOfProblems));
+    setProblemListItems(problems.map(problem=>
+      {
+          switch (problems.indexOf(problem)) {
+            case 0:
+            case 2:
+              if (bCoefficient < 0) {
+                problem += aCoefficient + "x" + bCoefficient;
+              }
+              else{
+                problem += aCoefficient + "x +" + bCoefficient;
+              }
+              break;
+            case 1:
+              
+              //Generate a number m and 2 coefficients A and B, where A*m is the user-defined function's a coefficient, and B*m is the user-defined function's b coefficient
+              let m = Math.floor(Math.random() * 10) +1; //m will only be integers between 0 and 9 for simplicity
+              
+              let xOfPoint = (Math.random()*9).toFixed(0); //the x coordinate of the A point that will feature in the exercise.
+              let yOfPoint = aCoefficient*xOfPoint + bCoefficient;
+              console.log(aCoefficient+"/"+m);
+              problem = problem.replace("Am", aCoefficient+"/"+m+"m");
+              if (bCoefficient > 0) {
+                problem = problem.replace("Bm", "+"+ bCoefficient+"/"+m+"m");
+              }
+              else{
+                problem = problem.replace("Bm", bCoefficient+"/"+m+"m");
+              }
+              problem = problem.replace("A()", "A("+xOfPoint+", "+yOfPoint+")")
+            break;
+            default:
+              break;
           }
-          else{
-            problemContent += aCoefficient + " x + " + bCoefficient;
-          } 
-          break;
-      
-        case 1:
-          //Generate a number m and 2 coefficients A and B, where A*m is the user-defined function's a coefficient, and B*m is the user-defined function's b coefficient
-          let m = (Math.random()*9).toFixed(0); //m will only be integers between 0 and 9 for simplicity
-          let a_m_coefficient = aCoefficient/m;
-          let b_m_coefficient = bCoefficient/m;
-          problemContent = problemContent.replace("Am", a_m_coefficient+"m"); //throws "problemContent is undefined"
-          problemContent = problemContent.replace("Bm", b_m_coefficient+"m");
-          break;
+          
+          return <li>{problem}</li>
       }
-      modifiedProblems.push(problemContent);
       
-    }
-    setProblems(modifiedProblems) //set the problems array with respect to the changes
-    const listItems = problems.map(problem=>
-      <li>{problem}</li>
-    )
+    ))
     
   }
   return (
@@ -145,15 +154,11 @@ function App() {
           ></div>
         </div>
         <h2>Generator zadań</h2>
-        <form onSubmit={generateProblems}>
-          <div className='form-group'>
-            <label htmlFor='numOfProblemsInput'>Ile zadań chcesz wygenerować?</label>
-            <input id='numOfProblemsInput' type='number' value={numOfProblems} onChange={(e)=>{setNumOfProblems(e.target.value)}} min={1}></input>
-          </div>
-          <input type='submit' value={"Generuj"} className='btn btn-primary' ></input>
-        </form>
+        <button onClick={generateProblems} className='btn btn-success'>
+        GENERUJ
+        </button>
         <ol>
-
+          {problemListItems}
         </ol>
         
         
